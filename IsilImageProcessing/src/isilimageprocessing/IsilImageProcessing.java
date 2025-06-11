@@ -11,6 +11,8 @@ import ImageProcessing.Fourier.Fourier;
 import ImageProcessing.Histogramme.Histogramme;
 import ImageProcessing.Lineaire.FiltrageLineaireGlobal;
 import ImageProcessing.Lineaire.FiltrageLineaireLocal;
+import ImageProcessing.NonLineaire.MorphoComplexe;
+import ImageProcessing.NonLineaire.MorphoElementaire;
 import isilimageprocessing.Dialogues.JDialogAfficheMatriceDouble;
 import isilimageprocessing.Dialogues.JDialogChoixCouleurNG;
 import isilimageprocessing.Dialogues.JDialogNouvelleCImageNG;
@@ -115,6 +117,20 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         jMenuFiltrageLineairePasseHautBUTTERWORTHAfficher = new javax.swing.JMenuItem();
         jMenuFiltrageLineaireConvolution = new javax.swing.JMenuItem();
         jMenuFiltrageLineaireMoyen = new javax.swing.JMenuItem();
+
+          FiltrageNonLineaire = new JMenu();
+          Elementaire = new JMenu();
+
+          Erosion = new javax.swing.JMenuItem();
+          Dilatation = new javax.swing.JMenuItem();
+          Ouverture = new javax.swing.JMenuItem();
+          Fermeture = new javax.swing.JMenuItem();
+
+        Complexe = new JMenu();
+
+        DilatationGeodesique = new javax.swing.JMenuItem();
+        ReconstructionGeodesique = new javax.swing.JMenuItem();
+        FiltreMedian = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Isil Image Processing");
@@ -310,7 +326,6 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         jMenuFiltrageLineaireGlobal.setText("Global");
         jMenuFiltrageLineaireLocal.setText("Local");
 
-
         jMenuFiltrageLineairePasseBasAfficher.setText("Filtre passe bas idéal");
         jMenuFiltrageLineairePasseBasAfficher.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -365,7 +380,83 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         jMenuFiltrageLineaire.add(jMenuFiltrageLineaireLocal);
         jMenuBar1.add(jMenuFiltrageLineaire);
 
+
+
+        // Filtre non lineaire => elementaire
+
+        Erosion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemFiltrageNonLineaireElementaire(evt);
+            }
+        });
+        Erosion.setText("Erosion");
+
+        Elementaire.add(Erosion);
+
+        Dilatation.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemFiltrageNonLineaireElementaire(evt);
+            }
+        });
+        Elementaire.add(Dilatation);
+        Dilatation.setText("Dilatation");
+
+        Fermeture.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemFiltrageNonLineaireElementaire(evt);
+            }
+        });
+        Elementaire.add(Fermeture);
+        Fermeture.setText("Fermeture");
+
+        Ouverture.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemFiltrageNonLineaireElementaire(evt);
+            }
+        });
+        Elementaire.add(Ouverture);
+        Ouverture.setText("Ouverture");
+
+        Elementaire.setText("Elementaire");
+        FiltrageNonLineaire.add(Elementaire);
+        FiltrageNonLineaire.setText("Filtrage non lineaire");
+        jMenuBar1.add(FiltrageNonLineaire);
+
+        // partie complexe :
+        DilatationGeodesique.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemFiltrageNonLineaireComplexeDilatationGeodesique(evt);
+            }
+        });
+        DilatationGeodesique.setText("Dilatation Geodesique");
+
+        Complexe.add(DilatationGeodesique);
+        jMenuFiltrageLineaireMoyen.setText("Dilatation");
+
+        ReconstructionGeodesique.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemFiltrageNonLineaireComplexeReconstructionGeodesique(evt);
+            }
+        });
+        Complexe.add(ReconstructionGeodesique);
+        ReconstructionGeodesique.setText("Reconstruction Geodesique");
+
+        FiltreMedian.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            }
+        });
+        Complexe.add(FiltreMedian);
+        FiltreMedian.setText("Filtre Median");
+
+        Complexe.setText("Complexe");
+        FiltrageNonLineaire.add(Elementaire);
+        FiltrageNonLineaire.add(Complexe);
+        FiltrageNonLineaire.setText("Filtrage non lineaire");
+        jMenuBar1.add(FiltrageNonLineaire);
+
         setJMenuBar(jMenuBar1);
+
+
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -826,6 +917,7 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
     // todo : faire ETape 2,3,4,5
     // Ce que on a créé nous meme !!!
 
+    //Etape 1 :
     private javax.swing.JMenu jMenuFiltrageLineaire;
     private javax.swing.JMenu jMenuFiltrageLineaireGlobal;
     private javax.swing.JMenu jMenuFiltrageLineaireLocal;
@@ -1098,4 +1190,175 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
             System.out.println("Erreur Filtrage passe bas butterworth menu : " + ex.getMessage());
         }
     }
+
+
+
+
+
+    //Etape 2 :
+    private javax.swing.JMenu FiltrageNonLineaire;
+    private javax.swing.JMenu Elementaire;
+    private javax.swing.JMenuItem Erosion;
+    private javax.swing.JMenuItem Dilatation;
+    private javax.swing.JMenuItem Ouverture;
+    private javax.swing.JMenuItem Fermeture;
+
+    private javax.swing.JMenu Complexe;
+    private javax.swing.JMenuItem DilatationGeodesique;
+    private javax.swing.JMenuItem ReconstructionGeodesique;
+    private javax.swing.JMenuItem FiltreMedian;
+
+
+
+    private void jMenuItemFiltrageNonLineaireElementaire(java.awt.event.ActionEvent evt){
+        try {
+            // Demande à l'utilisateur la taille du masque
+            String input = JOptionPane.showInputDialog(null, "Entrez la taille du masque (impair) :", "Morphologie", JOptionPane.QUESTION_MESSAGE);
+            if (input == null) {
+                return;
+            }
+
+            int tailleMasque;
+            try {
+                tailleMasque = Integer.parseInt(input);
+                if (tailleMasque % 2 == 0 || tailleMasque <= 0) {
+                    JOptionPane.showMessageDialog(null, "Veuillez entrer un entier impair et positif.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Valeur invalide. Veuillez entrer un entier impair.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // On détermine l'action à effectuer
+            JMenuItem source = (JMenuItem) evt.getSource();
+            String action = source.getText().toLowerCase(); // ex : "Érosion", "Dilatation", etc.
+
+            if (imageNG != null) {
+                int[][] inputMatrix = imageNG.getMatrice();
+                int[][] resultMatrix;
+
+                switch (action) {
+                    case "erosion":
+                        resultMatrix = MorphoElementaire.erosion(inputMatrix, tailleMasque);
+                        break;
+                    case "dilatation":
+                        resultMatrix = MorphoElementaire.dilatation(inputMatrix, tailleMasque);
+                        break;
+                    case "ouverture":
+                        resultMatrix = MorphoElementaire.ouverture(inputMatrix, tailleMasque);
+                        break;
+                    case "fermeture":
+                        resultMatrix = MorphoElementaire.fermeture(inputMatrix, tailleMasque);
+                        break;
+                    default:
+                        JOptionPane.showMessageDialog(null, "Opération non reconnue.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                        return;
+                }
+
+                imageNG = new CImageNG(resultMatrix);
+                observer.setCImage(imageNG);
+            }
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Erreur morphologique : " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+    }
+
+    private void     jMenuItemFiltrageNonLineaireComplexeDilatationGeodesique(java.awt.event.ActionEvent evt) {
+
+        try {
+            String input = JOptionPane.showInputDialog(null, "Entrez le nombre d'itérations (>=1) :", "Dilatation géodésique", JOptionPane.QUESTION_MESSAGE);
+            if (input == null) {
+                // Utilisateur a annulé la saisie
+                return;
+            }
+
+            int nbIter;
+            try {
+                nbIter = Integer.parseInt(input);
+                if (nbIter < 1) {
+                    JOptionPane.showMessageDialog(null, "Le nombre d'itérations doit être supérieur ou égal à 1.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Valeur invalide. Veuillez entrer un entier.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (imageNG != null) {
+
+                int[][] matriceMasqueConvolution = new int[imageNG.getHauteur()][imageNG.getLargeur()];
+                JFileChooser choix = new JFileChooser();
+                File fichier;
+
+                choix.setCurrentDirectory(new File("."));
+                if (choix.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                    fichier = choix.getSelectedFile();
+                    if (fichier != null) {
+                        try {
+                            CImageNG masque = new CImageNG(fichier);
+                            matriceMasqueConvolution = masque.getMatrice();
+                        } catch (IOException ex) {
+                            System.err.println("Erreur I/O : " + ex.getMessage());
+                        }
+                    }
+                }
+
+
+                int[][] image = imageNG.getMatrice();
+                System.out.println("avant dilatationGeodesique");
+                int[][] resultat = MorphoComplexe.dilatationGeodesique(image, matriceMasqueConvolution, nbIter);
+                imageNG = new CImageNG(resultat);
+                observer.setCImage(imageNG);
+            } else {
+                JOptionPane.showMessageDialog(null, "Aucune image chargée.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (Exception ex) {
+            System.out.println("Erreur Dilatation Géodésique : " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+
+
+
+    private void     jMenuItemFiltrageNonLineaireComplexeReconstructionGeodesique(java.awt.event.ActionEvent evt) {
+
+        try {
+            if (imageNG != null) {
+                int[][] matriceMasqueConvolution = new int[imageNG.getHauteur()][imageNG.getLargeur()];
+                JFileChooser choix = new JFileChooser();
+                File fichier;
+
+                choix.setCurrentDirectory(new File("."));
+                if (choix.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                    fichier = choix.getSelectedFile();
+                    if (fichier != null) {
+                        try {
+                            CImageNG masque = new CImageNG(fichier);
+                            matriceMasqueConvolution = masque.getMatrice();
+                        } catch (IOException ex) {
+                            System.err.println("Erreur I/O : " + ex.getMessage());
+                        }
+                    }
+                }
+
+
+                int[][] image = imageNG.getMatrice();
+                System.out.println("avant dilatationGeodesique");
+                int[][] resultat = MorphoComplexe.reconstructionGeodesique(image, matriceMasqueConvolution);
+                imageNG = new CImageNG(resultat);
+                observer.setCImage(imageNG);
+            } else {
+                JOptionPane.showMessageDialog(null, "Aucune image chargée.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (Exception ex) {
+            System.out.println("Erreur Dilatation Géodésique : " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
 }
