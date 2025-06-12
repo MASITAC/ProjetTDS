@@ -1,13 +1,8 @@
 package ImageProcessing.Histogramme;
 
-/**
- * Fonctions utilitaires pour l'analyse d'images en niveaux de gris. Les images
- * sont manipulées sous forme de matrices d'entiers dans l'intervalle [0,255].
- */
 public class Histogramme 
 {
     /**
-     * Calcule l'histogramme 256 niveaux d'une image.
      * Fonction du prof
      */
     public static int[] Histogramme256(int mat[][])
@@ -61,7 +56,7 @@ public class Histogramme
 
 
     /**
-     * Calcule la luminance moyenne de l'image selon la formule (1.28).
+     * Calcule la luminance moyenne de l'image.
      *
      * @param image matrice d'intensités
      * @return valeur moyenne des niveaux de gris
@@ -82,8 +77,7 @@ public class Histogramme
 
 
     /**
-     * Premier indicateur de contraste : écart-type des niveaux de gris
-     * tel que défini par la formule (1.29).
+     * Contraste avec l'écart-type des niveaux de gris
      *
      * @param image matrice d'intensités
      * @return écart type des intensités
@@ -108,8 +102,8 @@ public class Histogramme
 
 
     /**
-     * Second indicateur de contraste : rapport dynamique
-     * (max - min) / (max + min) comme dans la formule (1.30).
+     * Contraste avec la variation entre niveaux de gris min et max
+     * (max - min) / (max + min)
      *
      * @param image matrice d'intensités
      * @return valeur normalisée du contraste
@@ -124,12 +118,13 @@ public class Histogramme
         return (double)(max - min) / (double)(max + min);
     }
 
-    // ----------------------
+    /**
+    *  DEUXIEME PARTIE DE L ETAPE 3
+    */
 
     /**
      * Applique une courbe tonale sur l'image.
-     * Chaque niveau de gris i est remplace par la valeur
-     * courbeTonale[i].
+     * Chaque niveau de gris i est remplace par la valeur de courbeTonale[i].
      *
      * @param image        matrice d'intensites de l'image d'origine
      * @param courbeTonale table de 256 valeurs entre 0 et 255
@@ -152,7 +147,7 @@ public class Histogramme
 
     /**
      * Cree une courbe tonale correspondant a une transformation
-     * lineaire avec saturation telle que definie dans la formule (1.32).
+     * lineaire avec saturation.
      *
      * @param smin seuil minimum
      * @param smax seuil maximum
@@ -177,7 +172,6 @@ public class Histogramme
 
     /**
      * Cree une courbe tonale correspondant a la correction gamma
-     * (formule 1.33).
      *
      * @param gamma valeur de l'exposant gamma
      * @return courbe tonale de taille 256

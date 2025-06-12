@@ -334,7 +334,7 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         // STEP 3 B
 
         // Sous-menu Négatif
-        jMenuHistogrammeNegatif.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icones/negative_32.png")));
+        jMenuHistogrammeNegatif.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icones/report_32_hot.jpg")));
         jMenuHistogrammeNegatif.setText("Négatif de l'image");
         jMenuHistogrammeNegatif.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -344,7 +344,7 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         jMenuHistogramme.add(jMenuHistogrammeNegatif);
 
         // Sous-menu Linéaire
-        jMenuHistogrammeLineaire.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icones/contrast_32.png")));
+        jMenuHistogrammeLineaire.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icones/report_32_hot.jpg")));
         jMenuHistogrammeLineaire.setText("Transformation linéaire");
         jMenuHistogrammeLineaire.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -354,7 +354,7 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         jMenuHistogramme.add(jMenuHistogrammeLineaire);
 
         // Sous-menu Linéaire avec saturation
-        jMenuHistogrammeLineaireSaturation.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icones/saturation_32.png")));
+        jMenuHistogrammeLineaireSaturation.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icones/report_32_hot.jpg")));
         jMenuHistogrammeLineaireSaturation.setText("Transformation linéaire avec saturation");
         jMenuHistogrammeLineaireSaturation.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -364,7 +364,7 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         jMenuHistogramme.add(jMenuHistogrammeLineaireSaturation);
 
         // Sous-menu Gamma
-        jMenuHistogrammeGamma.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icones/gamma_32.png")));
+        jMenuHistogrammeGamma.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icones/report_32_hot.jpg")));
         jMenuHistogrammeGamma.setText("Correction gamma");
         jMenuHistogrammeGamma.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -374,7 +374,7 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         jMenuHistogramme.add(jMenuHistogrammeGamma);
 
         // Sous-menu Égalisation
-        jMenuHistogrammeEgalisation.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icones/histogram_eq_32.png")));
+        jMenuHistogrammeEgalisation.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icones/report_32_hot.jpg")));
         jMenuHistogrammeEgalisation.setText("Égalisation de l'histogramme");
         jMenuHistogrammeEgalisation.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1483,32 +1483,128 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
                     "\nContraste 2 : " + String.format("%.2f", c2);
 
             JOptionPane.showMessageDialog(this, message, "Paramètres de l'image", JOptionPane.INFORMATION_MESSAGE);
-        } catch (CImageNGException ex) {
-            System.out.println("Erreur CImageNG : " + ex.getMessage());
+        } catch (Exception ex) {
+            System.out.println("Erreur : " + ex.getMessage());
         }
     }
 
     private void jMenuHistogrammeNegatifActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO
+        try {
+            int[][] avant = imageNG.getMatrice();
+            int[] courbe = Histogramme.creeCourbeTonaleNegatif();
+            int[][] apres = Histogramme.rehaussement(avant, courbe);
+            imageNG = new CImageNG(apres);
+            observer.setCImage(imageNG);
+            afficherHistogrammes(avant, apres);
+        } catch (Exception ex) {
+            System.out.println("Erreur : " + ex.getMessage());
+        }
     }
 
     private void jMenuHistogrammeLineaireActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO
+        try {
+            int[][] avant = imageNG.getMatrice();
+            int smin = Histogramme.minimum(avant);
+            int smax = Histogramme.maximum(avant);
+            int[] courbe = Histogramme.creeCourbeTonaleLineaireSaturation(smin, smax);
+            int[][] apres = Histogramme.rehaussement(avant, courbe);
+            imageNG = new CImageNG(apres);
+            observer.setCImage(imageNG);
+            afficherHistogrammes(avant, apres);
+        } catch (Exception ex) {
+            System.out.println("Erreur : " + ex.getMessage());
+        }
     }
 
     private void jMenuHistogrammeLineaireSaturationActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO
+        try {
+            String sminStr = JOptionPane.showInputDialog(null, "Entrez smin", "Transformation linéaire avec saturation", JOptionPane.QUESTION_MESSAGE);
+            if (sminStr == null) return;
+            String smaxStr = JOptionPane.showInputDialog(null, "Entrez smax", "Transformation linéaire avec saturation", JOptionPane.QUESTION_MESSAGE);
+            if (smaxStr == null) return;
+            int smin = Integer.parseInt(sminStr);
+            int smax = Integer.parseInt(smaxStr);
+
+            int[][] avant = imageNG.getMatrice();
+            int[] courbe = Histogramme.creeCourbeTonaleLineaireSaturation(smin, smax);
+            int[][] apres = Histogramme.rehaussement(avant, courbe);
+            imageNG = new CImageNG(apres);
+            observer.setCImage(imageNG);
+            afficherHistogrammes(avant, apres);
+        } catch (Exception ex) {
+            System.out.println("Erreur : " + ex.getMessage());
+        }
     }
 
     private void jMenuHistogrammeGammaActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO
+        try {
+            String gammaStr = JOptionPane.showInputDialog(null, "Entrez gamma", "Correction gamma", JOptionPane.QUESTION_MESSAGE);
+            if (gammaStr == null) return;
+            double gamma = Double.parseDouble(gammaStr);
+
+            int[][] avant = imageNG.getMatrice();
+            int[] courbe = Histogramme.creeCourbeTonaleGamma(gamma);
+            int[][] apres = Histogramme.rehaussement(avant, courbe);
+            imageNG = new CImageNG(apres);
+            observer.setCImage(imageNG);
+            afficherHistogrammes(avant, apres);
+        } catch (Exception ex) {
+            System.out.println("Erreur : " + ex.getMessage());
+        }
     }
 
     private void jMenuHistogrammeEgalisationActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO
+        try {
+            int[][] avant = imageNG.getMatrice();
+            int[] courbe = Histogramme.creeCourbeTonaleEgalisation(avant);
+            int[][] apres = Histogramme.rehaussement(avant, courbe);
+            imageNG = new CImageNG(apres);
+            observer.setCImage(imageNG);
+            afficherHistogrammes(avant, apres);
+        } catch (Exception ex) {
+            System.out.println("Erreur : " + ex.getMessage());
+        }
     }
 
+    /**
+     * Affiche un graphique comparatif des histogrammes de deux images
+     * (avant et après transformation) dans une fenêtre.
+     *
+     * @param avant image originale
+     * @param apres image transformée
+     */
     private void afficherHistogrammes(int[][] avant, int[][] apres) {
-        // TODO
+        // Calcul de l’histogramme de chaque image
+        int[] histoAvant = Histogramme.Histogramme256(avant);
+        int[] histoApres = Histogramme.Histogramme256(apres);
+
+        // Création des séries de données pour le graphique
+        XYSeries serieAvant = new XYSeries("Avant");
+        XYSeries serieApres = new XYSeries("Après");
+
+        // Remplissage des séries avec les valeurs de l’histogramme
+        for (int i = 0; i < 256; i++) {
+            serieAvant.add(i, histoAvant[i]);
+            serieApres.add(i, histoApres[i]);
+        }
+
+        // Regroupement des deux séries dans un dataset pour le graphique
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        dataset.addSeries(serieAvant);
+        dataset.addSeries(serieApres);
+
+        // Création du graphique avec les deux histogrammes
+        JFreeChart chart = ChartFactory.createHistogram("Histogrammes", "Niveaux de gris", "Nombre de pixels", dataset, PlotOrientation.VERTICAL, true, false, false);
+
+        // Configuration de l’axe X (limité à 0–255)
+        XYPlot plot = (XYPlot) chart.getXYPlot();
+        ValueAxis axeX = plot.getDomainAxis();
+        axeX.setRange(0, 255);
+        plot.setDomainAxis(axeX);
+
+        // Affichage du graphique dans une nouvelle fenetre
+        ChartFrame frame = new ChartFrame("Avant / Après", chart);
+        frame.pack();
+        frame.setVisible(true);
     }
 }
