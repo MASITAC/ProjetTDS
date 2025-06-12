@@ -55,6 +55,7 @@ public class MorphoComplexe {
                 }
 
                 Arrays.sort(voisins, 0, idx);
+                // on retourne donc la valeur dans le nombre impair présnete au centre => voir concept de median
                 resultat[i][j] = voisins[idx / 2];
             }
         }

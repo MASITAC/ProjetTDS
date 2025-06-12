@@ -443,8 +443,10 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
 
         FiltreMedian.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemFiltrageNonLineaireComplexeFiletreMedian(evt);
             }
-        });
+            }
+    );
         Complexe.add(FiltreMedian);
         FiltreMedian.setText("Filtre Median");
 
@@ -1267,11 +1269,9 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
     }
 
     private void     jMenuItemFiltrageNonLineaireComplexeDilatationGeodesique(java.awt.event.ActionEvent evt) {
-
         try {
             String input = JOptionPane.showInputDialog(null, "Entrez le nombre d'itérations (>=1) :", "Dilatation géodésique", JOptionPane.QUESTION_MESSAGE);
             if (input == null) {
-                // Utilisateur a annulé la saisie
                 return;
             }
 
@@ -1287,7 +1287,6 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
                 return;
             }
             if (imageNG != null) {
-
                 int[][] matriceMasqueConvolution = new int[imageNG.getHauteur()][imageNG.getLargeur()];
                 JFileChooser choix = new JFileChooser();
                 File fichier;
@@ -1304,7 +1303,6 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
                         }
                     }
                 }
-
 
                 int[][] image = imageNG.getMatrice();
                 System.out.println("avant dilatationGeodesique");
@@ -1325,7 +1323,6 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
 
 
     private void     jMenuItemFiltrageNonLineaireComplexeReconstructionGeodesique(java.awt.event.ActionEvent evt) {
-
         try {
             if (imageNG != null) {
                 int[][] matriceMasqueConvolution = new int[imageNG.getHauteur()][imageNG.getLargeur()];
@@ -1345,7 +1342,6 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
                     }
                 }
 
-
                 int[][] image = imageNG.getMatrice();
                 System.out.println("avant dilatationGeodesique");
                 int[][] resultat = MorphoComplexe.reconstructionGeodesique(image, matriceMasqueConvolution);
@@ -1361,4 +1357,35 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         }
     }
 
+
+    private void jMenuItemFiltrageNonLineaireComplexeFiletreMedian(java.awt.event.ActionEvent evt) {
+        try {
+            String input = JOptionPane.showInputDialog(null, "Entrez la taille de votre matrice :", "Masque de convolution", JOptionPane.QUESTION_MESSAGE);
+            if (input == null) {
+                return;
+            }
+            int m;
+            try {
+                m = Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Valeur invalide. Veuillez entrer un entier impair.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (imageNG != null) {
+                imageNG = new CImageNG(MorphoComplexe.filtreMedian(imageNG.getMatrice(), m));
+                observer.setCImage(imageNG);
+            }
+            if (imageRGB != null) {
+                int[][] blue = new int[imageRGB.getLargeur()][imageRGB.getHauteur()];
+                int[][] red = new int[imageRGB.getLargeur()][imageRGB.getHauteur()];
+                int[][] green = new int[imageRGB.getLargeur()][imageRGB.getHauteur()];
+                imageRGB.getMatricesRGB(red, green, blue);
+                imageRGB.setMatricesRGB(MorphoComplexe.filtreMedian(red, m), MorphoComplexe.filtreMedian(green, m), MorphoComplexe.filtreMedian(blue, m));
+                observer.setCImage(imageRGB);
+            }
+        } catch (Exception ex) {
+            System.out.println("Erreur Filtrage passe bas butterworth menu : " + ex.getMessage());
+        }
+    }
 }
