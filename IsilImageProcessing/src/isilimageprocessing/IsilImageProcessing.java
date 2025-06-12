@@ -105,6 +105,12 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         jMenuItemFourierAfficherPartieImaginaire = new javax.swing.JMenuItem();
         jMenuHistogramme = new javax.swing.JMenu();
         jMenuHistogrammeAfficher = new javax.swing.JMenuItem();
+        jMenuHistogrammeParametres = new javax.swing.JMenuItem();
+        jMenuHistogrammeNegatif = new javax.swing.JMenuItem();
+        jMenuHistogrammeLineaire = new javax.swing.JMenuItem();
+        jMenuHistogrammeLineaireSaturation = new javax.swing.JMenuItem();
+        jMenuHistogrammeGamma = new javax.swing.JMenuItem();
+        jMenuHistogrammeEgalisation = new javax.swing.JMenuItem();
         jMenuFiltrageLineaire = new javax.swing.JMenu();
         jMenuFiltrageLineaireGlobal = new javax.swing.JMenu();
         jMenuFiltrageLineaireLocal = new javax.swing.JMenu();
@@ -315,8 +321,7 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         });
         jMenuHistogramme.add(jMenuHistogrammeAfficher);
 
-        // STEP 3
-        jMenuHistogrammeParametres = new javax.swing.JMenuItem();
+        // STEP 3 A
         jMenuHistogrammeParametres.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icones/report_32_hot.jpg"))); // NOI18N
         jMenuHistogrammeParametres.setText("Afficher les paramètres de l'image");
         jMenuHistogrammeParametres.addActionListener(new java.awt.event.ActionListener() {
@@ -325,6 +330,61 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
             }
         });
         jMenuHistogramme.add(jMenuHistogrammeParametres);
+
+        // STEP 3 B
+
+        // Sous-menu Négatif
+        jMenuHistogrammeNegatif.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icones/negative_32.png")));
+        jMenuHistogrammeNegatif.setText("Négatif de l'image");
+        jMenuHistogrammeNegatif.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuHistogrammeNegatifActionPerformed(evt);
+            }
+        });
+        jMenuHistogramme.add(jMenuHistogrammeNegatif);
+
+        // Sous-menu Linéaire
+        jMenuHistogrammeLineaire.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icones/contrast_32.png")));
+        jMenuHistogrammeLineaire.setText("Transformation linéaire");
+        jMenuHistogrammeLineaire.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuHistogrammeLineaireActionPerformed(evt);
+            }
+        });
+        jMenuHistogramme.add(jMenuHistogrammeLineaire);
+
+        // Sous-menu Linéaire avec saturation
+        jMenuHistogrammeLineaireSaturation.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icones/saturation_32.png")));
+        jMenuHistogrammeLineaireSaturation.setText("Transformation linéaire avec saturation");
+        jMenuHistogrammeLineaireSaturation.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuHistogrammeLineaireSaturationActionPerformed(evt);
+            }
+        });
+        jMenuHistogramme.add(jMenuHistogrammeLineaireSaturation);
+
+        // Sous-menu Gamma
+        jMenuHistogrammeGamma.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icones/gamma_32.png")));
+        jMenuHistogrammeGamma.setText("Correction gamma");
+        jMenuHistogrammeGamma.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuHistogrammeGammaActionPerformed(evt);
+            }
+        });
+        jMenuHistogramme.add(jMenuHistogrammeGamma);
+
+        // Sous-menu Égalisation
+        jMenuHistogrammeEgalisation.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icones/histogram_eq_32.png")));
+        jMenuHistogrammeEgalisation.setText("Égalisation de l'histogramme");
+        jMenuHistogrammeEgalisation.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuHistogrammeEgalisationActionPerformed(evt);
+            }
+        });
+        jMenuHistogramme.add(jMenuHistogrammeEgalisation);
+
+
+
 
         jMenuBar1.add(jMenuHistogramme);
 
@@ -517,27 +577,6 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         frame.pack();
         frame.setVisible(true);
     }//GEN-LAST:event_jMenuHistogrammeAfficherActionPerformed
-
-    private void jMenuHistogrammeParametresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuHistogrammeParametresActionPerformed
-        try {
-            int [][] mat = imageNG.getMatrice();
-            int min = Histogramme.minimum(mat);
-            int max = Histogramme.maximum(mat);
-            int lum = Histogramme.luminance(mat);
-            double c1 = Histogramme.contraste1(mat);
-            double c2 = Histogramme.contraste2(mat);
-
-            String message = "Minimum : " + min +
-                    "\nMaximum : " + max +
-                    "\nLuminance : " + lum +
-                    "\nContraste 1 : " + String.format("%.2f", c1) +
-                    "\nContraste 2 : " + String.format("%.2f", c2);
-
-            JOptionPane.showMessageDialog(this, message, "Paramètres de l'image", JOptionPane.INFORMATION_MESSAGE);
-        } catch (CImageNGException ex) {
-            System.out.println("Erreur CImageNG : " + ex.getMessage());
-        }
-    }
 
     private void activeMenusNG() {
         jMenuDessiner.setEnabled(true);
@@ -926,6 +965,11 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
     private javax.swing.JMenu jMenuHistogramme;
     private javax.swing.JMenuItem jMenuHistogrammeAfficher;
     private javax.swing.JMenuItem jMenuHistogrammeParametres;
+    private javax.swing.JMenuItem jMenuHistogrammeNegatif;
+    private javax.swing.JMenuItem jMenuHistogrammeLineaire;
+    private javax.swing.JMenuItem jMenuHistogrammeLineaireSaturation;
+    private javax.swing.JMenuItem jMenuHistogrammeGamma;
+    private javax.swing.JMenuItem jMenuHistogrammeEgalisation;
     private javax.swing.JMenu jMenuImage;
     private javax.swing.JMenuItem jMenuItemCouleurPinceau;
     private javax.swing.JMenuItem jMenuItemEnregistrerSous;
@@ -1416,5 +1460,55 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         } catch (Exception ex) {
             System.out.println("Erreur Filtrage passe bas butterworth menu : " + ex.getMessage());
         }
+    }
+
+
+
+
+    // Etape 3
+
+    private void jMenuHistogrammeParametresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuHistogrammeParametresActionPerformed
+        try {
+            int [][] mat = imageNG.getMatrice();
+            int min = Histogramme.minimum(mat);
+            int max = Histogramme.maximum(mat);
+            int lum = Histogramme.luminance(mat);
+            double c1 = Histogramme.contraste1(mat);
+            double c2 = Histogramme.contraste2(mat);
+
+            String message = "Minimum : " + min +
+                    "\nMaximum : " + max +
+                    "\nLuminance : " + lum +
+                    "\nContraste 1 : " + String.format("%.2f", c1) +
+                    "\nContraste 2 : " + String.format("%.2f", c2);
+
+            JOptionPane.showMessageDialog(this, message, "Paramètres de l'image", JOptionPane.INFORMATION_MESSAGE);
+        } catch (CImageNGException ex) {
+            System.out.println("Erreur CImageNG : " + ex.getMessage());
+        }
+    }
+
+    private void jMenuHistogrammeNegatifActionPerformed(java.awt.event.ActionEvent evt) {
+        // TODO
+    }
+
+    private void jMenuHistogrammeLineaireActionPerformed(java.awt.event.ActionEvent evt) {
+        // TODO
+    }
+
+    private void jMenuHistogrammeLineaireSaturationActionPerformed(java.awt.event.ActionEvent evt) {
+        // TODO
+    }
+
+    private void jMenuHistogrammeGammaActionPerformed(java.awt.event.ActionEvent evt) {
+        // TODO
+    }
+
+    private void jMenuHistogrammeEgalisationActionPerformed(java.awt.event.ActionEvent evt) {
+        // TODO
+    }
+
+    private void afficherHistogrammes(int[][] avant, int[][] apres) {
+        // TODO
     }
 }

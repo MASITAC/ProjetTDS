@@ -89,12 +89,12 @@ public class Histogramme
      * @return écart type des intensités
      */
     public static double contraste1(int[][] image) {
-        int M = image.length;
-        int N = image[0].length;
+        int Height = image.length;
+        int Width = image[0].length;
 
         double moy = luminance(image);
         double somme = 0.0;
-        double totalPixels = M * N;
+        double totalPixels = Height * Width;
 
         for (int[] row : image) {
             for (int pixel : row) {
@@ -122,5 +122,115 @@ public class Histogramme
         if (max + min == 0) return 0.0;
 
         return (double)(max - min) / (double)(max + min);
+    }
+
+    // ----------------------
+
+    /**
+     * Applique une courbe tonale sur l'image.
+     * Chaque niveau de gris i est remplace par la valeur
+     * courbeTonale[i].
+     *
+     * @param image        matrice d'intensites de l'image d'origine
+     * @param courbeTonale table de 256 valeurs entre 0 et 255
+     * @return nouvelle image rehaussee
+     */
+    public static int[][] rehaussement(int[][] image, int[] courbeTonale) {
+        int Height = image.length;
+        int Width = image[0].length;
+        int[][] res = new int[Height][Width];
+
+        for (int i = 0; i < Height; i++) {
+            for (int j = 0; j < Width; j++) {
+                int val = image[i][j];
+                res[i][j] = courbeTonale[val];
+            }
+        }
+        return res;
+    }
+
+
+    /**
+     * Cree une courbe tonale correspondant a une transformation
+     * lineaire avec saturation telle que definie dans la formule (1.32).
+     *
+     * @param smin seuil minimum
+     * @param smax seuil maximum
+     * @return courbe tonale de taille 256
+     */
+    public static int[] creeCourbeTonaleLineaireSaturation(int smin, int smax) {
+        int[] courbe = new int[256];
+
+        for (int i = 0; i < 256; i++) {
+            if (i <= smin) {
+                courbe[i] = 0;
+            } else if (i >= smax) {
+                courbe[i] = 255;
+            } else {
+                courbe[i] = (int) Math.round(255.0 * (i - smin) / (smax - smin));
+            }
+        }
+
+        return courbe;
+    }
+
+
+    /**
+     * Cree une courbe tonale correspondant a la correction gamma
+     * (formule 1.33).
+     *
+     * @param gamma valeur de l'exposant gamma
+     * @return courbe tonale de taille 256
+     */
+    public static int[] creeCourbeTonaleGamma(double gamma) {
+        int[] courbe = new int[256];
+
+        for (int i = 0; i < 256; i++) {
+            double normalisation = i / 255.0;                           // Normalisation du niveau de gris entre 0 et 1
+            double correction = Math.pow(normalisation, 1.0 / gamma);   // Corection Gama
+            courbe[i] = (int) Math.round(correction * 255);             // Reconstruction de la vrai intenssité dans l’échelle [0, 255]
+        }
+
+        return courbe;
+    }
+
+
+    /**
+     * Cree la courbe tonale correspondant au negatif de l'image.
+     *
+     * @return courbe tonale de taille 256
+     */
+    public static int[] creeCourbeTonaleNegatif() {
+        int[] courbe = new int[256];
+        for (int i = 0; i < 256; i++) {
+            courbe[i] = 255 - i;
+        }
+        return courbe;
+    }
+
+
+    /**
+     * Cree la courbe tonale correspondant a l'egalisation
+     * de l'histogramme de l'image.
+     *
+     * @param image matrice d'intensites
+     * @return courbe tonale de taille 256
+     */
+    public static int[] creeCourbeTonaleEgalisation(int[][] image) {
+        int[] histogramme = Histogramme256(image);
+        int totalPixels = image.length * image[0].length;
+        int[] courbe = new int[256];
+
+        int[] cdf = new int[256];
+        cdf[0] = histogramme[0];
+        for (int i = 1; i < 256; i++) {
+            cdf[i] = cdf[i - 1] + histogramme[i];
+        }
+
+        for (int i = 0; i < 256; i++) {
+            courbe[i] = (int) Math.round((cdf[i] * 255.0) / totalPixels);
+        }
+
+        return courbe;
     }
 }
