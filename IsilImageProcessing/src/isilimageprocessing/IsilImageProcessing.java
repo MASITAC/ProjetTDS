@@ -31,9 +31,6 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * @author HP_Propri�taire
- */
 public class IsilImageProcessing extends javax.swing.JFrame implements ClicListener, SelectLigneListener, SelectRectListener, SelectRectFillListener, SelectCercleListener, SelectCercleFillListener {
     private CImageRGB imageRGB;
     private CImageNG imageNG;
@@ -318,8 +315,18 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         });
         jMenuHistogramme.add(jMenuHistogrammeAfficher);
 
-        jMenuBar1.add(jMenuHistogramme);
+        // STEP 3
+        jMenuHistogrammeParametres = new javax.swing.JMenuItem();
+        jMenuHistogrammeParametres.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icones/report_32_hot.jpg"))); // NOI18N
+        jMenuHistogrammeParametres.setText("Afficher les paramètres de l'image");
+        jMenuHistogrammeParametres.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuHistogrammeParametresActionPerformed(evt);
+            }
+        });
+        jMenuHistogramme.add(jMenuHistogrammeParametres);
 
+        jMenuBar1.add(jMenuHistogramme);
 
         jMenuFiltrageLineaire.setText("Filtrage Linéaire");
 
@@ -510,6 +517,27 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         frame.pack();
         frame.setVisible(true);
     }//GEN-LAST:event_jMenuHistogrammeAfficherActionPerformed
+
+    private void jMenuHistogrammeParametresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuHistogrammeParametresActionPerformed
+        try {
+            int [][] mat = imageNG.getMatrice();
+            int min = Histogramme.minimum(mat);
+            int max = Histogramme.maximum(mat);
+            int lum = Histogramme.luminance(mat);
+            double c1 = Histogramme.contraste1(mat);
+            double c2 = Histogramme.contraste2(mat);
+
+            String message = "Minimum : " + min +
+                    "\nMaximum : " + max +
+                    "\nLuminance : " + lum +
+                    "\nContraste 1 : " + String.format("%.2f", c1) +
+                    "\nContraste 2 : " + String.format("%.2f", c2);
+
+            JOptionPane.showMessageDialog(this, message, "Paramètres de l'image", JOptionPane.INFORMATION_MESSAGE);
+        } catch (CImageNGException ex) {
+            System.out.println("Erreur CImageNG : " + ex.getMessage());
+        }
+    }
 
     private void activeMenusNG() {
         jMenuDessiner.setEnabled(true);
@@ -897,6 +925,7 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
     private javax.swing.JMenu jMenuFourierAfficher;
     private javax.swing.JMenu jMenuHistogramme;
     private javax.swing.JMenuItem jMenuHistogrammeAfficher;
+    private javax.swing.JMenuItem jMenuHistogrammeParametres;
     private javax.swing.JMenu jMenuImage;
     private javax.swing.JMenuItem jMenuItemCouleurPinceau;
     private javax.swing.JMenuItem jMenuItemEnregistrerSous;
