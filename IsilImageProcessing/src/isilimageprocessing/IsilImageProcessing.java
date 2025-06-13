@@ -13,6 +13,7 @@ import ImageProcessing.Lineaire.FiltrageLineaireGlobal;
 import ImageProcessing.Lineaire.FiltrageLineaireLocal;
 import ImageProcessing.NonLineaire.MorphoComplexe;
 import ImageProcessing.NonLineaire.MorphoElementaire;
+import ImageProcessing.Contours.ContoursLineaire;
 import isilimageprocessing.Dialogues.JDialogAfficheMatriceDouble;
 import isilimageprocessing.Dialogues.JDialogChoixCouleurNG;
 import isilimageprocessing.Dialogues.JDialogNouvelleCImageNG;
@@ -120,6 +121,13 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         jMenuFiltrageLineairePasseHautBUTTERWORTHAfficher = new javax.swing.JMenuItem();
         jMenuFiltrageLineaireConvolution = new javax.swing.JMenuItem();
         jMenuFiltrageLineaireMoyen = new javax.swing.JMenuItem();
+
+        jMenuContours = new javax.swing.JMenu();
+        jMenuContoursLineaire = new javax.swing.JMenu();
+        jMenuItemContoursGradientPrewitt = new javax.swing.JMenuItem();
+        jMenuItemContoursGradientSobel = new javax.swing.JMenuItem();
+        jMenuItemContoursLaplacien4 = new javax.swing.JMenuItem();
+        jMenuItemContoursLaplacien8 = new javax.swing.JMenuItem();
 
           FiltrageNonLineaire = new JMenu();
           Elementaire = new JMenu();
@@ -383,9 +391,6 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         });
         jMenuHistogramme.add(jMenuHistogrammeEgalisation);
 
-
-
-
         jMenuBar1.add(jMenuHistogramme);
 
         jMenuFiltrageLineaire.setText("Filtrage Linéaire");
@@ -447,7 +452,43 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         jMenuFiltrageLineaire.add(jMenuFiltrageLineaireLocal);
         jMenuBar1.add(jMenuFiltrageLineaire);
 
+        jMenuContours.setText("Contours");
+        jMenuContoursLineaire.setText("Linéaire");
 
+        jMenuItemContoursGradientPrewitt.setText("Gradient de Prewitt");
+        jMenuItemContoursGradientPrewitt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemContoursGradientPrewittActionPerformed(evt);
+            }
+        });
+        jMenuContoursLineaire.add(jMenuItemContoursGradientPrewitt);
+
+        jMenuItemContoursGradientSobel.setText("Gradient de Sobel");
+        jMenuItemContoursGradientSobel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemContoursGradientSobelActionPerformed(evt);
+            }
+        });
+        jMenuContoursLineaire.add(jMenuItemContoursGradientSobel);
+
+        jMenuItemContoursLaplacien4.setText("Laplacien 4");
+        jMenuItemContoursLaplacien4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemContoursLaplacien4ActionPerformed(evt);
+            }
+        });
+        jMenuContoursLineaire.add(jMenuItemContoursLaplacien4);
+
+        jMenuItemContoursLaplacien8.setText("Laplacien 8");
+        jMenuItemContoursLaplacien8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemContoursLaplacien8ActionPerformed(evt);
+            }
+        });
+        jMenuContoursLineaire.add(jMenuItemContoursLaplacien8);
+
+        jMenuContours.add(jMenuContoursLineaire);
+        jMenuBar1.add(jMenuContours);
 
         // Filtre non lineaire => elementaire
 
@@ -987,6 +1028,12 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
     private javax.swing.JScrollPane jScrollPane;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JMenu jMenuContours;
+    private javax.swing.JMenu jMenuContoursLineaire;
+    private javax.swing.JMenuItem jMenuItemContoursGradientPrewitt;
+    private javax.swing.JMenuItem jMenuItemContoursGradientSobel;
+    private javax.swing.JMenuItem jMenuItemContoursLaplacien4;
+    private javax.swing.JMenuItem jMenuItemContoursLaplacien8;
     // End of variables declaration//GEN-END:variables
 
     // todo : faire ETape 2,3,4,5
@@ -1606,5 +1653,64 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         ChartFrame frame = new ChartFrame("Avant / Après", chart);
         frame.pack();
         frame.setVisible(true);
+    }
+
+
+
+
+    // ETAPE 4
+
+    private void jMenuItemContoursGradientPrewittActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            String input = JOptionPane.showInputDialog(null, "1 : horizontale\n2 : verticale", "Gradient Prewitt", JOptionPane.QUESTION_MESSAGE);
+            if (input == null) return;
+            int dir = Integer.parseInt(input);
+            if (dir != 1 && dir != 2) return;
+
+            if (imageNG != null) {
+                imageNG = new CImageNG(ContoursLineaire.gradientPrewitt(imageNG.getMatrice(), dir));
+                observer.setCImage(imageNG);
+            }
+        } catch (Exception ex) {
+            System.out.println("Erreur Gradient Prewitt : " + ex.getMessage());
+        }
+    }
+
+    private void jMenuItemContoursGradientSobelActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            String input = JOptionPane.showInputDialog(null, "1 : horizontale\n2 : verticale", "Gradient Sobel", JOptionPane.QUESTION_MESSAGE);
+            if (input == null) return;
+            int dir = Integer.parseInt(input);
+            if (dir != 1 && dir != 2) return;
+
+            if (imageNG != null) {
+                imageNG = new CImageNG(ContoursLineaire.gradientSobel(imageNG.getMatrice(), dir));
+                observer.setCImage(imageNG);
+            }
+        } catch (Exception ex) {
+            System.out.println("Erreur Gradient Sobel : " + ex.getMessage());
+        }
+    }
+
+    private void jMenuItemContoursLaplacien4ActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            if (imageNG != null) {
+                imageNG = new CImageNG(ContoursLineaire.laplacien4(imageNG.getMatrice()));
+                observer.setCImage(imageNG);
+            }
+        } catch (Exception ex) {
+            System.out.println("Erreur Laplacien4 : " + ex.getMessage());
+        }
+    }
+
+    private void jMenuItemContoursLaplacien8ActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            if (imageNG != null) {
+                imageNG = new CImageNG(ContoursLineaire.laplacien8(imageNG.getMatrice()));
+                observer.setCImage(imageNG);
+            }
+        } catch (Exception ex) {
+            System.out.println("Erreur Laplacien8 : " + ex.getMessage());
+        }
     }
 }
