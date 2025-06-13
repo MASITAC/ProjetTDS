@@ -14,6 +14,7 @@ import ImageProcessing.Lineaire.FiltrageLineaireLocal;
 import ImageProcessing.NonLineaire.MorphoComplexe;
 import ImageProcessing.NonLineaire.MorphoElementaire;
 import ImageProcessing.Contours.ContoursLineaire;
+import ImageProcessing.Contours.ContoursNonLineaire;
 import isilimageprocessing.Dialogues.JDialogAfficheMatriceDouble;
 import isilimageprocessing.Dialogues.JDialogChoixCouleurNG;
 import isilimageprocessing.Dialogues.JDialogNouvelleCImageNG;
@@ -124,10 +125,15 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
 
         jMenuContours = new javax.swing.JMenu();
         jMenuContoursLineaire = new javax.swing.JMenu();
+        jMenuContoursNonLineaire = new javax.swing.JMenu();
         jMenuItemContoursGradientPrewitt = new javax.swing.JMenuItem();
         jMenuItemContoursGradientSobel = new javax.swing.JMenuItem();
         jMenuItemContoursLaplacien4 = new javax.swing.JMenuItem();
         jMenuItemContoursLaplacien8 = new javax.swing.JMenuItem();
+        jMenuItemContoursGradientErosion = new javax.swing.JMenuItem();
+        jMenuItemContoursGradientDilatation = new javax.swing.JMenuItem();
+        jMenuItemContoursGradientBeucher = new javax.swing.JMenuItem();
+        jMenuItemContoursLaplacienNonLineaire = new javax.swing.JMenuItem();
 
           FiltrageNonLineaire = new JMenu();
           Elementaire = new JMenu();
@@ -487,7 +493,42 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         });
         jMenuContoursLineaire.add(jMenuItemContoursLaplacien8);
 
+        jMenuContoursNonLineaire.setText("Non-linéaire");
+
+        jMenuItemContoursGradientErosion.setText("Gradient d'érosion");
+        jMenuItemContoursGradientErosion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemContoursGradientErosionActionPerformed(evt);
+            }
+        });
+        jMenuContoursNonLineaire.add(jMenuItemContoursGradientErosion);
+
+        jMenuItemContoursGradientDilatation.setText("Gradient de dilatation");
+        jMenuItemContoursGradientDilatation.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemContoursGradientDilatationActionPerformed(evt);
+            }
+        });
+        jMenuContoursNonLineaire.add(jMenuItemContoursGradientDilatation);
+
+        jMenuItemContoursGradientBeucher.setText("Gradient de Beucher");
+        jMenuItemContoursGradientBeucher.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemContoursGradientBeucherActionPerformed(evt);
+            }
+        });
+        jMenuContoursNonLineaire.add(jMenuItemContoursGradientBeucher);
+
+        jMenuItemContoursLaplacienNonLineaire.setText("Laplacien non-linéaire");
+        jMenuItemContoursLaplacienNonLineaire.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemContoursLaplacienNonLineaireActionPerformed(evt);
+            }
+        });
+        jMenuContoursNonLineaire.add(jMenuItemContoursLaplacienNonLineaire);
+
         jMenuContours.add(jMenuContoursLineaire);
+        jMenuContours.add(jMenuContoursNonLineaire);
         jMenuBar1.add(jMenuContours);
 
         // Filtre non lineaire => elementaire
@@ -1030,10 +1071,15 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JMenu jMenuContours;
     private javax.swing.JMenu jMenuContoursLineaire;
+    private javax.swing.JMenu jMenuContoursNonLineaire;
     private javax.swing.JMenuItem jMenuItemContoursGradientPrewitt;
     private javax.swing.JMenuItem jMenuItemContoursGradientSobel;
     private javax.swing.JMenuItem jMenuItemContoursLaplacien4;
     private javax.swing.JMenuItem jMenuItemContoursLaplacien8;
+    private javax.swing.JMenuItem jMenuItemContoursGradientErosion;
+    private javax.swing.JMenuItem jMenuItemContoursGradientDilatation;
+    private javax.swing.JMenuItem jMenuItemContoursGradientBeucher;
+    private javax.swing.JMenuItem jMenuItemContoursLaplacienNonLineaire;
     // End of variables declaration//GEN-END:variables
 
     // todo : faire ETape 2,3,4,5
@@ -1711,6 +1757,52 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
             }
         } catch (Exception ex) {
             System.out.println("Erreur Laplacien8 : " + ex.getMessage());
+        }
+    }
+
+    // STEP 4 B
+
+    private void jMenuItemContoursGradientErosionActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            if (imageNG != null) {
+                imageNG = new CImageNG(ContoursNonLineaire.gradientErosion(imageNG.getMatrice()));
+                observer.setCImage(imageNG);
+            }
+        } catch (Exception ex) {
+            System.out.println("Erreur Gradient Erosion : " + ex.getMessage());
+        }
+    }
+
+    private void jMenuItemContoursGradientDilatationActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            if (imageNG != null) {
+                imageNG = new CImageNG(ContoursNonLineaire.gradientDilatation(imageNG.getMatrice()));
+                observer.setCImage(imageNG);
+            }
+        } catch (Exception ex) {
+            System.out.println("Erreur Gradient Dilatation : " + ex.getMessage());
+        }
+    }
+
+    private void jMenuItemContoursGradientBeucherActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            if (imageNG != null) {
+                imageNG = new CImageNG(ContoursNonLineaire.gradientBeucher(imageNG.getMatrice()));
+                observer.setCImage(imageNG);
+            }
+        } catch (Exception ex) {
+            System.out.println("Erreur Gradient Beucher : " + ex.getMessage());
+        }
+    }
+
+    private void jMenuItemContoursLaplacienNonLineaireActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            if (imageNG != null) {
+                imageNG = new CImageNG(ContoursNonLineaire.laplacienNonLineaire(imageNG.getMatrice()));
+                observer.setCImage(imageNG);
+            }
+        } catch (Exception ex) {
+            System.out.println("Erreur Laplacien Non Linéaire : " + ex.getMessage());
         }
     }
 }
