@@ -63,6 +63,7 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         jMenuDessiner.setEnabled(false);
         jMenuFourier.setEnabled(false);
         jMenuHistogramme.setEnabled(false);
+        jMenuSeuillage.setEnabled(false);
         jMenuFiltrageLineaire.setEnabled(true);
         couleurPinceauRGB = Color.BLACK;
         couleurPinceauNG = 0;
@@ -148,6 +149,10 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         DilatationGeodesique = new javax.swing.JMenuItem();
         ReconstructionGeodesique = new javax.swing.JMenuItem();
         FiltreMedian = new javax.swing.JMenuItem();
+        jMenuSeuillage = new javax.swing.JMenu();
+        jMenuSeuillageSimple = new javax.swing.JMenuItem();
+        jMenuSeuillageDouble = new javax.swing.JMenuItem();
+        jMenuSeuillageAutomatique = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Isil Image Processing");
@@ -398,6 +403,29 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         jMenuHistogramme.add(jMenuHistogrammeEgalisation);
 
         jMenuBar1.add(jMenuHistogramme);
+        jMenuSeuillage.setText("Seuillage");
+        jMenuSeuillageSimple.setText("Seuillage simple");
+        jMenuSeuillageSimple.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuSeuillageSimpleActionPerformed(evt);
+            }
+        });
+        jMenuSeuillage.add(jMenuSeuillageSimple);
+        jMenuSeuillageDouble.setText("Seuillage double");
+        jMenuSeuillageDouble.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuSeuillageDoubleActionPerformed(evt);
+            }
+        });
+        jMenuSeuillage.add(jMenuSeuillageDouble);
+        jMenuSeuillageAutomatique.setText("Seuillage automatique");
+        jMenuSeuillageAutomatique.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuSeuillageAutomatiqueActionPerformed(evt);
+            }
+        });
+        jMenuSeuillage.add(jMenuSeuillageAutomatique);
+        jMenuBar1.add(jMenuSeuillage);
 
         jMenuFiltrageLineaire.setText("Filtrage Linéaire");
 
@@ -664,12 +692,14 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         jMenuDessiner.setEnabled(true);
         jMenuFourier.setEnabled(true);
         jMenuHistogramme.setEnabled(true);
+        jMenuSeuillage.setEnabled(true);
     }
 
     private void activeMenusRGB() {
         jMenuDessiner.setEnabled(true);
         jMenuFourier.setEnabled(false);
         jMenuHistogramme.setEnabled(false);
+        jMenuSeuillage.setEnabled(false);
     }
 
     private void jCheckBoxMenuItemDessinerCerclePleinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItemDessinerCerclePleinActionPerformed
@@ -1803,6 +1833,55 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
             }
         } catch (Exception ex) {
             System.out.println("Erreur Laplacien Non Linéaire : " + ex.getMessage());
+        }
+    }
+
+    // ETAPE 4 C
+
+    private javax.swing.JMenu jMenuSeuillage;
+    private javax.swing.JMenuItem jMenuSeuillageSimple;
+    private javax.swing.JMenuItem jMenuSeuillageDouble;
+    private javax.swing.JMenuItem jMenuSeuillageAutomatique;
+
+    private void jMenuSeuillageSimpleActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            String s = JOptionPane.showInputDialog(null, "Seuil", "Seuillage simple", JOptionPane.QUESTION_MESSAGE);
+            if (s == null) return;
+            int seuil = Integer.parseInt(s);
+            if (imageNG != null) {
+                imageNG = new CImageNG(ImageProcessing.Seuillage.Seuillage.seuillageSimple(imageNG.getMatrice(), seuil));
+                observer.setCImage(imageNG);
+            }
+        } catch (Exception ex) {
+            System.out.println("Erreur seuillage simple : " + ex.getMessage());
+        }
+    }
+
+    private void jMenuSeuillageDoubleActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            String s1 = JOptionPane.showInputDialog(null, "Seuil 1", "Seuillage double", JOptionPane.QUESTION_MESSAGE);
+            if (s1 == null) return;
+            String s2 = JOptionPane.showInputDialog(null, "Seuil 2", "Seuillage double", JOptionPane.QUESTION_MESSAGE);
+            if (s2 == null) return;
+            int seuil1 = Integer.parseInt(s1);
+            int seuil2 = Integer.parseInt(s2);
+            if (imageNG != null) {
+                imageNG = new CImageNG(ImageProcessing.Seuillage.Seuillage.seuillageDouble(imageNG.getMatrice(), seuil1, seuil2));
+                observer.setCImage(imageNG);
+            }
+        } catch (Exception ex) {
+            System.out.println("Erreur seuillage double : " + ex.getMessage());
+        }
+    }
+
+    private void jMenuSeuillageAutomatiqueActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            if (imageNG != null) {
+                imageNG = new CImageNG(ImageProcessing.Seuillage.Seuillage.seuillageAutomatique(imageNG.getMatrice()));
+                observer.setCImage(imageNG);
+            }
+        } catch (Exception ex) {
+            System.out.println("Erreur seuillage automatique : " + ex.getMessage());
         }
     }
 }
