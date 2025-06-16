@@ -6,6 +6,7 @@ import CImage.Exceptions.CImageNGException;
 import CImage.Exceptions.CImageRGBException;
 import CImage.Observers.Events.*;
 import CImage.Observers.JLabelBeanCImage;
+import CImage.Observers.JLabelCImage;
 import ImageProcessing.Complexe.MatriceComplexe;
 import ImageProcessing.Fourier.Fourier;
 import ImageProcessing.Histogramme.Histogramme;
@@ -15,6 +16,7 @@ import ImageProcessing.NonLineaire.MorphoComplexe;
 import ImageProcessing.NonLineaire.MorphoElementaire;
 import ImageProcessing.Contours.ContoursLineaire;
 import ImageProcessing.Contours.ContoursNonLineaire;
+import ImageProcessing.Seuillage.Seuillage;
 import isilimageprocessing.Dialogues.JDialogAfficheMatriceDouble;
 import isilimageprocessing.Dialogues.JDialogChoixCouleurNG;
 import isilimageprocessing.Dialogues.JDialogNouvelleCImageNG;
@@ -36,7 +38,8 @@ import java.io.IOException;
 public class IsilImageProcessing extends javax.swing.JFrame implements ClicListener, SelectLigneListener, SelectRectListener, SelectRectFillListener, SelectCercleListener, SelectCercleFillListener {
     private CImageRGB imageRGB;
     private CImageNG imageNG;
-
+    private String    lastNGFileName;
+    private String    lastRGBFileName;
     private JLabelBeanCImage observer;
     private Color couleurPinceauRGB;
     private int couleurPinceauNG;
@@ -635,6 +638,36 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
 
         setJMenuBar(jMenuBar1);
 
+        //ETAPE 5 MENU
+
+        JMenu appsMenu = new JMenu("Applications");
+        jMenuBar1.add(appsMenu);
+
+        JMenuItem RDB = new JMenuItem("1. Réduction de bruit");
+        JMenuItem EX2 = new JMenuItem("2. Egalisation d'histograme");
+        JMenuItem EX3 = new JMenuItem("3. segmentation des petits pois");
+        JMenuItem EX4 = new JMenuItem("4. segmentation des balanes par taille");
+        JMenuItem EX5 = new JMenuItem("5. extraction binaire des outils");
+        JMenuItem EX6 = new JMenuItem("6. extraction et collage du petit vaisseau");
+        JMenuItem EX7 = new JMenuItem("7. détection de tartine");
+
+        RDB.addActionListener(this::jMenuItemEx1ActionPerformed);
+        EX2.addActionListener(this::jMenuItemEx2ActionPerformed);
+        EX3.addActionListener(this::jMenuItemEx3ActionPerformed);
+        EX4.addActionListener(this::jMenuItemEx4ActionPerformed);
+        EX5.addActionListener(this::jMenuItemEx5ActionPerformed);
+        EX6.addActionListener(this::jMenuItemEx6ActionPerformed);
+        EX7.addActionListener(this::jMenuItemEx7ActionPerformed);
+        appsMenu.add(RDB);
+        appsMenu.add(EX2);
+        appsMenu.add(EX3);
+        appsMenu.add(EX4);
+        appsMenu.add(EX5);
+        appsMenu.add(EX6);
+        appsMenu.add(EX7);
+
+
+
 
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -654,7 +687,7 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
                                 .addContainerGap())
         );
 
-        setSize(new java.awt.Dimension(800, 600));
+        setSize(new java.awt.Dimension(1024, 800));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -851,6 +884,7 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
             if (fichier != null) {
                 try {
                     imageNG = new CImageNG(fichier);
+                    lastNGFileName = fichier.getName().toLowerCase();
                     observer.setCImage(imageNG);
                     imageRGB = null;
                     activeMenusNG();
@@ -951,6 +985,7 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
             if (fichier != null) {
                 try {
                     imageRGB = new CImageRGB(fichier);
+                    lastRGBFileName =  fichier.getName().toLowerCase();
                     observer.setCImage(imageRGB);
                     imageNG = null;
                     activeMenusRGB();
@@ -1110,6 +1145,16 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
     private javax.swing.JMenuItem jMenuItemContoursGradientDilatation;
     private javax.swing.JMenuItem jMenuItemContoursGradientBeucher;
     private javax.swing.JMenuItem jMenuItemContoursLaplacienNonLineaire;
+    private javax.swing.JMenu       jMenuApplications;
+    private javax.swing.JMenuItem   jMenuItemEx1;
+    private javax.swing.JMenuItem   jMenuItemEx2;
+    private javax.swing.JMenuItem   jMenuItemEx3;
+    private javax.swing.JMenuItem   jMenuItemEx4;
+    private javax.swing.JMenuItem   jMenuItemEx5;
+    private javax.swing.JMenuItem   jMenuItemEx6;
+    private javax.swing.JMenuItem   jMenuItemEx7;
+
+
     // End of variables declaration//GEN-END:variables
 
     // todo : faire ETape 2,3,4,5
@@ -1884,4 +1929,580 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
             System.out.println("Erreur seuillage automatique : " + ex.getMessage());
         }
     }
+
+    //ETAPE 5 DEBUT
+    //ETAPE 5.1 DEBUT
+
+    private void jMenuItemEx1ActionPerformed(java.awt.event.ActionEvent evt) {
+        // 1) Vérifier qu'une image NG a bien été chargée
+        if (imageNG == null) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Vous devez d'abord charger une image NG (imageBruitee1.png ou imageBruitee2.png).",
+                    "Aucune image chargée",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+        // 2) Vérifier que le nom du fichier est correct
+        String name = lastNGFileName.toLowerCase();
+        if (!name.equals("imagebruitee1.png") && !name.equals("imagebruitee2.png")) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Pour cet exercice, chargez imageBruitee1.png ou imageBruitee2.png.",
+                    "Fichier incorrect",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+
+        try {
+
+            int[][] mat0 = imageNG.getMatrice();
+
+
+            int[][] matMed = MorphoComplexe.filtreMedian(mat0, 3);
+            CImageNG imgMed = new CImageNG(matMed);
+
+
+            int[][] matOpen = MorphoElementaire.ouverture(imgMed.getMatrice(), 3);
+            CImageNG imgOpen = new CImageNG(matOpen);
+
+
+            int[][] matLow = FiltrageLineaireGlobal
+                    .filtrePasseBasButterworth(imgOpen.getMatrice(), 25, 1);
+            CImageNG imgLow = new CImageNG(matLow);
+
+            double[][] maskSharpen = {
+                    {  0, -1,  0 },
+                    { -1,  5, -1 },
+                    {  0, -1,  0 }
+            };
+            int[][] matSharp = FiltrageLineaireLocal.filtreMasqueConvolution(
+                    imgLow.getMatrice(), maskSharpen);
+            CImageNG result = new CImageNG(matSharp);
+
+            observer.setCImage(result);
+            result.enregistreFormatPNG(new File("denoise_sharp_" + lastNGFileName));
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Erreur pendant le débruitage.",
+                    "Erreur",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void jMenuItemEx2ActionPerformed(java.awt.event.ActionEvent evt) {
+        // 1) Vérifier qu'une image RGB est chargée
+        if (imageRGB == null) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Vous devez d'abord charger lenaAEgaliser.jpg (image RGB).",
+                    "Aucune image chargée",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+        // 2) Vérifier le nom de fichier
+        String name = lastRGBFileName.toLowerCase();
+        if (!name.equals("lenaaegaliser.jpg")) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Pour cet exercice, chargez précisément lenaAEgaliser.jpg.",
+                    "Fichier incorrect",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        try {
+
+            int largeur  = imageRGB.getLargeur();
+            int hauteur  = imageRGB.getHauteur();
+            int[][] red   = new int[largeur][hauteur];
+            int[][] green = new int[largeur][hauteur];
+            int[][] blue  = new int[largeur][hauteur];
+            imageRGB.getMatricesRGB(red, green, blue);
+
+            // ==== Méthode (a) : égalisation séparée R,G,B ====
+            // Calcul des courbes tonales pour chaque canal
+            int[] curveR = Histogramme.creeCourbeTonaleEgalisation(red);
+            int[] curveG = Histogramme.creeCourbeTonaleEgalisation(green);
+            int[] curveB = Histogramme.creeCourbeTonaleEgalisation(blue);
+            // Application des rehaussements
+            int[][] eqR = Histogramme.rehaussement(red,   curveR);
+            int[][] eqG = Histogramme.rehaussement(green, curveG);
+            int[][] eqB = Histogramme.rehaussement(blue,  curveB);
+            CImageRGB imgSeparee = new CImageRGB(eqR, eqG, eqB);
+
+            // ==== Méthode (b) : égalisation sur la luminance ====
+            // Conversion en gris pour calculer la luminance
+            CImageNG cng = imageRGB.getCImageNG();
+            int[][] lumMat = cng.getMatrice();
+            // Une seule courbe tirée de l'histogramme de luminance
+            int[] curveLum = Histogramme.creeCourbeTonaleEgalisation(lumMat);
+            // Application de la même courbe à chaque canal
+            int[][] eqR2 = Histogramme.rehaussement(red,   curveLum);
+            int[][] eqG2 = Histogramme.rehaussement(green, curveLum);
+            int[][] eqB2 = Histogramme.rehaussement(blue,  curveLum);
+            CImageRGB imgLum = new CImageRGB(eqR2, eqG2, eqB2);
+
+            // 4) Affichage comparatif
+            //TODO faire en sorte de pouvoir avoir un résultat visible dans l'interface
+//            new JLabelBeanCImage(imgSeparee).showInDialog("Ég. RGB séparé");
+//            new JLabelBeanCImage(imgLum).showInDialog("Ég. Luminance");
+
+            // 5) Sauvegarde si besoin
+            imgSeparee.enregistreFormatPNG(new File("lena_eqRGB.png"));
+            imgLum.enregistreFormatPNG(new File("lena_eqLum.png"));
+
+            // 6) Quelle méthode est meilleure ?
+            JOptionPane.showMessageDialog(
+                    this,
+                    "En général, l’égalisation sur la luminance (b) préserve mieux l’équilibre des couleurs,\n"
+                            + "alors que l’égalisation séparée (a) peut créer des dominantes de teinte.",
+                    "Comparaison des méthodes",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+        } catch (IOException | CImageRGBException | CImageNGException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Erreur pendant l’égalisation : " + ex.getMessage(),
+                    "Erreur",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void jMenuItemEx3ActionPerformed(java.awt.event.ActionEvent evt) {
+        // 1) Vérifier qu'une image RGB est chargée
+        if (imageRGB == null) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Vous devez d'abord charger petitsPois.png (image RGB).",
+                    "Aucune image chargée",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+        // 2) Vérifier le nom du fichier
+        String name = lastRGBFileName.toLowerCase();
+        if (! name.equals("petitspois.png")) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Pour cet exercice, chargez précisément petitsPois.png.",
+                    "Fichier incorrect",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        try {
+            // 3) Récupérer les matrices R, G, B
+            int largeur  = imageRGB.getLargeur();
+            int hauteur  = imageRGB.getHauteur();
+            int[][] R = new int[largeur][hauteur];
+            int[][] G = new int[largeur][hauteur];
+            int[][] B = new int[largeur][hauteur];
+            imageRGB.getMatricesRGB(R, G, B);
+
+            // 4a) Masque bleu : B prédominant et suffisamment élevé
+            int[][] maskBlue = new int[largeur][hauteur];
+            for (int i = 0; i < largeur; i++) {
+                for (int j = 0; j < hauteur; j++) {
+                    if (B[i][j] > 100 && B[i][j] > R[i][j] + 10 && B[i][j] > G[i][j] + 10)
+                        maskBlue[i][j] = 255;
+                    else
+                        maskBlue[i][j] = 0;
+                }
+            }
+
+            int[][] blueClean = MorphoElementaire.fermeture(maskBlue,   2);
+            CImageNG imgBlue  = new CImageNG(blueClean);
+
+            // 4b) Masque rouge : R prédominant et suffisamment élevé
+            int[][] maskRed = new int[largeur][hauteur];
+            for (int i = 0; i < largeur; i++) {
+                for (int j = 0; j < hauteur; j++) {
+                    if (R[i][j] > 100 && R[i][j] > G[i][j] + 10 && R[i][j] > B[i][j] + 10)
+                        maskRed[i][j] = 255;
+                    else
+                        maskRed[i][j] = 0;
+                }
+            }
+
+            int[][] redClean = MorphoElementaire.fermeture(maskRed,   2);
+            CImageNG imgRed  = new CImageNG(redClean);
+
+            // 5) Affichage des deux masques dans des boîtes de dialogue
+//            new JLabelCImage(imgBlue).showInDialog("Pois bleus");
+//            new JLabelCImage(imgRed).showInDialog( "Pois rouges");
+
+            // 6) Sauvegardes optionnelles
+            imgBlue.enregistreFormatPNG(new File("petitsPois_bleus.png"));
+            imgRed.enregistreFormatPNG( new File("petitsPois_rouges.png"));
+
+        } catch (IOException | CImageRGBException | CImageNGException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Erreur durant la segmentation : " + ex.getMessage(),
+                    "Erreur",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void jMenuItemEx4ActionPerformed(java.awt.event.ActionEvent evt) {
+        // 1) Vérifier qu'une image RGB est chargée
+        if (imageRGB == null) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Vous devez d'abord charger balanes.png (image RGB).",
+                    "Aucune image chargée",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+        // 2) Vérifier le nom du fichier
+        String name = lastRGBFileName.toLowerCase();
+        if (! name.equals("balanes.png")) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Pour cet exercice, chargez précisément balanes.png.",
+                    "Fichier incorrect",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        try {
+            // 3) Conversion en niveaux de gris et binarisation automatique
+            CImageNG gray     = imageRGB.getCImageNG();
+            int[][] matGray   = gray.getMatrice();
+            int[][] maskAll   = Seuillage.seuillageAutomatique(matGray);
+
+            // 4) Extraction des grandes balanes
+
+            int sizeLarge     = 15;  // tu pourras ajuster
+            int[][] eroded    = MorphoElementaire.erosion(maskAll, sizeLarge);
+
+            int[][] maskLarge = MorphoComplexe.reconstructionGeodesique(eroded, maskAll);
+            CImageNG imgLarge = new CImageNG(maskLarge);
+
+            // 5) Extraction des petites balanes
+            int largeur  = matGray.length;
+            int hauteur  = matGray[0].length;
+            int[][] maskSmall = new int[largeur][hauteur];
+            for (int i = 0; i < largeur; i++) {
+                for (int j = 0; j < hauteur; j++) {
+                    if (maskAll[i][j] == 255 && maskLarge[i][j] == 0) {
+                        maskSmall[i][j] = 255;
+                    } else {
+                        maskSmall[i][j] = 0;
+                    }
+                }
+            }
+
+            maskSmall = MorphoElementaire.ouverture(maskSmall, 3);
+            CImageNG imgSmall = new CImageNG(maskSmall);
+
+            // 6) Affichage des deux résultats
+//            new JLabelCImage(imgLarge).showInDialog("Balanes de grande taille");
+//            new JLabelCImage(imgSmall).showInDialog("Balanes de petite taille");
+
+            // 7) Sauvegarde si nécessaire
+            imgLarge.enregistreFormatPNG(new File("balanes_grandes.png"));
+            imgSmall.enregistreFormatPNG(new File("balanes_petites.png"));
+
+        } catch (IOException | CImageNGException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Erreur pendant la segmentation : " + ex.getMessage(),
+                    "Erreur",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void jMenuItemEx5ActionPerformed(java.awt.event.ActionEvent evt) {
+        // 1) Vérifier qu'une image RGB est chargée
+        if (imageNG == null) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Vous devez d'abord charger tools.png (image RGB).",
+                    "Aucune image chargée",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+        // 2) Vérifier le nom du fichier
+        String name = lastNGFileName.toLowerCase();
+        if (! name.equals("tools.png")) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Pour cet exercice, chargez précisément tools.png.",
+                    "Fichier incorrect",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        try {
+            int[][] matGray = imageNG.getMatrice();
+
+            // 3a) Estimation du fond
+            int tailleFond = 50;
+            int[][] fond = MorphoComplexe.reconstructionGeodesique(
+                    MorphoElementaire.erosion(matGray, tailleFond),
+                    matGray
+            );
+
+            // 3b) Top-hat gris-niveau = original – fond
+            int w = matGray.length, h = matGray[0].length;
+            int[][] topHat = new int[w][h];
+            for (int i = 0; i < w; i++) {
+                for (int j = 0; j < h; j++) {
+                    topHat[i][j] = Math.max(0, matGray[i][j] - fond[i][j]);
+                }
+            }
+
+            // 4) Binarisation sur topHat (et non plus matGray)
+            int[][] mask = Seuillage.seuillageAutomatique(topHat);
+
+            // 5) Nettoyage morphologique adapté
+            mask = MorphoElementaire.ouverture(mask, 1);   // taille 2 pour garder un peu de détail
+            mask = MorphoElementaire.fermeture(mask, 3);   // taille 7 pour combler correctement
+
+            // 6) (Optionnel) plus de reconstruction si besoin, sinon on peut s’arrêter ici
+
+            // 7) Création et affichage
+            CImageNG result = new CImageNG(mask);
+            observer.setCImage(result);
+
+            result.enregistreFormatPNG(new File("tools_binary.png"));
+
+        } catch (IOException | CImageNGException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Erreur durant l’extraction des outils : " + ex.getMessage(),
+                    "Erreur",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void jMenuItemEx6ActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            // 1) Vérification image vaisseaux.jpg
+            if (imageRGB == null || !lastRGBFileName.equals("vaisseaux.jpg")) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Chargez d'abord vaisseaux.jpg (Menu Fichier → Ouvrir RGB).",
+                        "Image vaisseaux manquante",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+
+            // 2) Charger planete.jpg
+            CImageRGB planeteRGB = new CImageRGB(new File("./ImagesEtape5/planete.jpg"));
+
+            // 3) Binarisation
+            CImageNG grayV    = imageRGB.getCImageNG();
+            int[][] matGray   = grayV.getMatrice();
+            int[][] maskAll   = Seuillage.seuillageAutomatique(matGray);
+
+            // 4a) Grandes régions (SE T1)
+            int T1 = 30;
+            int[][] er1       = MorphoElementaire.erosion(maskAll, T1);
+            int[][] maskLarge = MorphoComplexe.reconstructionGeodesique(er1, maskAll);
+
+            // 4b) Régions moyennes/petites (SE T2)
+            int T2 = 10;
+            int[][] er2         = MorphoElementaire.erosion(maskAll, T2);
+            int[][] maskMedSmall = MorphoComplexe.reconstructionGeodesique(er2, maskAll);
+
+            // 4c) Différence → seul le petit objet (entre T2 et T1)
+            int w = maskAll.length, h = maskAll[0].length;
+            int[][] maskSmall = new int[w][h];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    if (maskMedSmall[x][y] == 255 && maskLarge[x][y] == 0) {
+                        maskSmall[x][y] = 255;
+                    }
+                }
+            }
+            maskSmall = MorphoElementaire.fermeture(maskSmall, 10);
+            // 5) Extraction des canaux R,G,B
+            int[][] rV = new int[w][h], gV = new int[w][h], bV = new int[w][h];
+            imageRGB.getMatricesRGB(rV, gV, bV);
+            int[][] rP = new int[w][h], gP = new int[w][h], bP = new int[w][h];
+            planeteRGB.getMatricesRGB(rP, gP, bP);
+
+            // 6) Collage du petit vaisseau
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    if (maskSmall[x][y] == 255) {
+                        rP[x][y] = rV[x][y];
+                        gP[x][y] = gV[x][y];
+                        bP[x][y] = bV[x][y];
+                    }
+                }
+            }
+
+            // 7) Sauvegarder synthese.png
+            CImageRGB synthese = new CImageRGB(rP, gP, bP);
+            synthese.enregistreFormatPNG(new File("synthese.png"));
+
+            // 8) Créer le contour rouge
+            int[][] dil = MorphoElementaire.dilatation(maskSmall, 3);
+            int[][] edge = new int[w][h];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    if (dil[x][y] == 255 && maskSmall[x][y] == 0) {
+                        edge[x][y] = 255;
+                    }
+                }
+            }
+            // Peindre l'anneau en rouge
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    if (edge[x][y] == 255) {
+                        rP[x][y] = 255;
+                        gP[x][y] =   0;
+                        bP[x][y] =   0;
+                    }
+                }
+            }
+
+            // 9) Sauvegarder synthese2.png
+            CImageRGB synthese2 = new CImageRGB(rP, gP, bP);
+            synthese2.enregistreFormatPNG(new File("synthese2.png"));
+
+            // 10) Afficher
+//            new JLabelCImage(synthese).showInDialog("Synthèse sans contour");
+//            new JLabelCImage(synthese2).showInDialog("Synthèse avec contour");
+
+        } catch (IOException | CImageRGBException | CImageNGException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Erreur durant l’extraction/collage : " + ex.getMessage(),
+                    "Erreur",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void jMenuItemEx7ActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            // 1) Vérifier que Tartines.jpg est chargé
+            if (imageRGB == null
+                    || ! lastRGBFileName.equalsIgnoreCase("tartines.jpg")) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Chargez d'abord Tartines.jpg.",
+                        "Image manquante",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+
+            // 2) Récupérer les dimensions et les canaux R,G,B
+            int w = imageRGB.getLargeur(), h = imageRGB.getHauteur();
+            int[][] r = new int[w][h], g = new int[w][h], b = new int[w][h];
+            imageRGB.getMatricesRGB(r, g, b);
+
+            // === Étape A : seuillage du canal rouge ===
+            int[][] maskR = Seuillage.seuillageAutomatique(r);
+            new CImageNG(maskR)
+                    .enregistreFormatPNG(new File("A_threshold.png"));
+
+            // === Nouvelle Étape A1 : ouverture faible pour supprimer les petits bruits ===
+            maskR = MorphoElementaire.ouverture(maskR, 51);
+            new CImageNG(maskR)
+                    .enregistreFormatPNG(new File("A1_denoised.png"));
+
+            // === Étape B : fermeture large (SE=51) pour combler ===
+            int[][] maskClose = MorphoElementaire.fermeture(maskR, 2);
+            new CImageNG(maskClose)
+                    .enregistreFormatPNG(new File("B_closed.png"));
+
+            // === Étape C : ouverture pour lisser les bords (SE=15) ===
+            int seOpen = 15;
+            int[][] maskSmooth = MorphoElementaire.ouverture(maskClose, seOpen);
+            new CImageNG(maskSmooth).enregistreFormatPNG(new File("C_smoothed.png"));
+
+            // Étape D bis : contour par gradient morphologique
+            int seContour = 3;  // carré 3×3
+            int[][] maskEroded = MorphoElementaire.erosion(maskSmooth, seContour);
+
+            int[][] border = new int[w][h];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    border[x][y] = (maskSmooth[x][y] > maskEroded[x][y]) ? 255 : 0;
+                }
+            }
+
+            CImageNG  imgContours  = new CImageNG(border);
+            imgContours.enregistreFormatPNG(new File("D_contours.png"));
+
+            // 1) Charger l’image d’origine et le masque de contours
+            CImageRGB imgOriginal = new CImageRGB(new File("./ImagesEtape5/tartines.jpg"));
+
+            // 2) Récupérer dimensions et canaux de l’original
+            int width  = imgOriginal.getLargeur();
+            int height = imgOriginal.getHauteur();
+            int[][] channelR = new int[width][height];
+            int[][] channelG = new int[width][height];
+            int[][] channelB = new int[width][height];
+            imgOriginal.getMatricesRGB(channelR, channelG, channelB);
+
+            // 3) Récupérer la matrice binaire du masque de contours
+            int[][] maskBinary = imgContours.getMatrice();  // valeurs 0 ou 255
+
+            // 4) Superposer le vert sur les pixels de contour
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    if (maskBinary[x][y] == 255) {
+                        channelR[x][y] = 0;
+                        channelG[x][y] = 255;
+                        channelB[x][y] = 0;
+                    }
+                }
+            }
+
+            // 5) Enregistrer le résultat
+            new CImageRGB(channelR, channelG, channelB)
+                    .enregistreFormatPNG(new File("tartines_overlay_vert.png"));
+
+
+        } catch (IOException | CImageRGBException | CImageNGException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Erreur : " + ex.getMessage(),
+                    "Erreur",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+
+
+
+
+
+
 }
