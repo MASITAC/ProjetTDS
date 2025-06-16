@@ -21,12 +21,12 @@ public class ContoursNonLineaire {
      */
     public static int[][] gradientErosion(int[][] image) {
         int[][] erosion = MorphoElementaire.erosion(image, 3); // Erosion avec un noyau 3x3
-        int h = image.length;
-        int w = image[0].length;
-        int[][] res = new int[h][w];
+        int Height = image.length;
+        int Width = image[0].length;
+        int[][] res = new int[Height][Width];
 
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
+        for (int i = 0; i < Height; i++) {
+            for (int j = 0; j < Width; j++) {
                 // On applique le gradient d’érosion et on vérifie le résultat
                 res[i][j] = verify(image[i][j] - erosion[i][j]);
             }
@@ -42,11 +42,12 @@ public class ContoursNonLineaire {
      */
     public static int[][] gradientDilatation(int[][] image) {
         int[][] dilatation = MorphoElementaire.dilatation(image, 3); // Dilatation 3x3
-        int h = image.length;
-        int w = image[0].length;
-        int[][] res = new int[h][w];
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
+        int Height = image.length;
+        int Width = image[0].length;
+        int[][] res = new int[Height][Width];
+
+        for (int i = 0; i < Height; i++) {
+            for (int j = 0; j < Width; j++) {
                 res[i][j] = verify(dilatation[i][j] - image[i][j]);
             }
         }
@@ -61,11 +62,13 @@ public class ContoursNonLineaire {
     public static int[][] gradientBeucher(int[][] image) {
         int[][] dilatation = MorphoElementaire.dilatation(image, 3);
         int[][] erosion = MorphoElementaire.erosion(image, 3);
-        int h = image.length;
-        int w = image[0].length;
-        int[][] res = new int[h][w];
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
+
+        int Height = image.length;
+        int Width = image[0].length;
+        int[][] res = new int[Height][Width];
+
+        for (int i = 0; i < Height; i++) {
+            for (int j = 0; j < Width; j++) {
                 res[i][j] = verify(dilatation[i][j] - erosion[i][j]);
             }
         }
@@ -81,12 +84,12 @@ public class ContoursNonLineaire {
         int[][] dilatation = MorphoElementaire.dilatation(image, 3);
         int[][] erosion = MorphoElementaire.erosion(image, 3);
 
-        int h = image.length;
-        int w = image[0].length;
-        int[][] res = new int[h][w];
+        int Height = image.length;
+        int Width = image[0].length;
+        int[][] res = new int[Height][Width];
 
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
+        for (int i = 0; i < Height; i++) {
+            for (int j = 0; j < Width; j++) {
                 int val = dilatation[i][j] - erosion[i][j];
                 res[i][j] = verify(Math.abs(val)); // on prend la valeur absolue au cas où
             }
