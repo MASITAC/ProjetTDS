@@ -34,6 +34,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
 
 public class IsilImageProcessing extends javax.swing.JFrame implements ClicListener, SelectLigneListener, SelectRectListener, SelectRectFillListener, SelectCercleListener, SelectCercleFillListener {
     private CImageRGB imageRGB;
@@ -1958,6 +1959,7 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
 
 
         try {
+            long startTime = System.nanoTime();
 
             int[][] mat0 = imageNG.getMatrice();
 
@@ -1985,6 +1987,20 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
 
             observer.setCImage(result);
             result.enregistreFormatPNG(new File("denoise_sharp_" + lastNGFileName));
+
+            long durationNs = System.nanoTime() - startTime;
+            double durationMs = durationNs / 1_000_000.0;
+            JOptionPane.showMessageDialog(
+                    this,
+                    String.format(
+                            Locale.FRENCH,
+                            "Réduction de bruit terminée en %.3f ms (%.3f s).",
+                            durationMs,
+                            durationMs / 1000.0
+                    ),
+                    "Durée d'exécution",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
 
 
         } catch (Exception ex) {
@@ -2106,6 +2122,7 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         }
 
         try {
+            long startTime = System.nanoTime();
             // 3) Récupérer les matrices R, G, B
             int largeur  = imageRGB.getLargeur();
             int hauteur  = imageRGB.getHauteur();
@@ -2149,6 +2166,20 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
             // 6) Sauvegardes optionnelles
             imgBlue.enregistreFormatPNG(new File("petitsPois_bleus.png"));
             imgRed.enregistreFormatPNG( new File("petitsPois_rouges.png"));
+
+            long durationNs = System.nanoTime() - startTime;
+            double durationMs = durationNs / 1_000_000.0;
+            JOptionPane.showMessageDialog(
+                    this,
+                    String.format(
+                            Locale.FRENCH,
+                            "Segmentation des petits pois terminée en %.3f ms (%.3f s).",
+                            durationMs,
+                            durationMs / 1000.0
+                    ),
+                    "Durée d'exécution",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
 
         } catch (IOException | CImageRGBException | CImageNGException ex) {
             ex.printStackTrace();
@@ -2318,6 +2349,8 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
             // 2) Charger planete.jpg
             CImageRGB planeteRGB = new CImageRGB(new File("./ImagesEtape5/planete.jpg"));
 
+            long startTime = System.nanoTime();
+
             // 3) Binarisation
             CImageNG grayV    = imageRGB.getCImageNG();
             int[][] matGray   = grayV.getMatrice();
@@ -2389,6 +2422,20 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
             // 9) Sauvegarder synthese2.png
             CImageRGB synthese2 = new CImageRGB(rP, gP, bP);
             synthese2.enregistreFormatPNG(new File("synthese2.png"));
+
+            long durationNs = System.nanoTime() - startTime;
+            double durationMs = durationNs / 1_000_000.0;
+            JOptionPane.showMessageDialog(
+                    this,
+                    String.format(
+                            Locale.FRENCH,
+                            "Extraction du petit vaisseau terminée en %.3f ms (%.3f s).",
+                            durationMs,
+                            durationMs / 1000.0
+                    ),
+                    "Durée d'exécution",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
 
             // 10) Afficher
 //            new JLabelCImage(synthese).showInDialog("Synthèse sans contour");
