@@ -52,9 +52,9 @@ public class Seuillage {
 
 
     /**
-     * Seuillage automatique :
-     *      Initialisation du seuil comme la moyenne.
-     *      On recommence jusqu'à stabilisation du seuil.
+     * Seuillage automatique par l'algorithme itératif :
+     *      Initialisation du seuil comme la moyenne globale.
+     *      Réitération jusqu'à stabilisation du seuil.
      */
     public static int[][] seuillageAutomatique(int[][] image) {
         int h = image.length;

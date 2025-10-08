@@ -10,13 +10,13 @@ public class ContoursLineaire {
      * @return l’image filtrée
      */
     public static int[][] appliqueMasque(int[][] image, int[][] masque) {
-        int Height = image.length;
-        int Width = image[0].length;
-        int[][] resultat = new int[Height][Width];
+        int M = image.length;
+        int N = image[0].length;
+        int[][] resultat = new int[M][N];
 
         // Parcours de l'image en évitant les bords (comme on à besoin des 8 voisins pour le calcul)
-        for (int i = 1; i < Height - 1; i++) {
-            for (int j = 1; j < Width - 1; j++) {
+        for (int i = 1; i < M - 1; i++) {
+            for (int j = 1; j < N - 1; j++) {
                 int somme = 0;
 
                 // Application du masque 3x3 centré sur (i,j)

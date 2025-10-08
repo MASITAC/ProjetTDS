@@ -215,14 +215,14 @@ public class Histogramme
         int totalPixels = image.length * image[0].length;
         int[] courbe = new int[256];
 
-        int[] distribCumulee = new int[256];
-        distribCumulee[0] = histogramme[0];
+        int[] cdf = new int[256];
+        cdf[0] = histogramme[0];
         for (int i = 1; i < 256; i++) {
-            distribCumulee[i] = distribCumulee[i - 1] + histogramme[i];
+            cdf[i] = cdf[i - 1] + histogramme[i];
         }
 
         for (int i = 0; i < 256; i++) {
-            courbe[i] = (int) Math.round((distribCumulee[i] * 255.0) / totalPixels);
+            courbe[i] = (int) Math.round((cdf[i] * 255.0) / totalPixels);
         }
 
         return courbe;

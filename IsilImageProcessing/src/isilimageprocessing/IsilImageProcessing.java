@@ -2125,7 +2125,7 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
                 }
             }
 
-            int[][] blueClean = MorphoElementaire.fermeture(maskBlue,   2);
+            int[][] blueClean = MorphoElementaire.fermeture(maskBlue,   7);
             CImageNG imgBlue  = new CImageNG(blueClean);
 
             // 4b) Masque rouge : R prédominant et suffisamment élevé
@@ -2139,7 +2139,7 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
                 }
             }
 
-            int[][] redClean = MorphoElementaire.fermeture(maskRed,   2);
+            int[][] redClean = MorphoElementaire.fermeture(maskRed,   7);
             CImageNG imgRed  = new CImageNG(redClean);
 
             // 5) Affichage des deux masques dans des boîtes de dialogue
@@ -2192,7 +2192,7 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
 
             // 4) Extraction des grandes balanes
 
-            int sizeLarge     = 15;  // tu pourras ajuster
+            int sizeLarge     = 15;
             int[][] eroded    = MorphoElementaire.erosion(maskAll, sizeLarge);
 
             int[][] maskLarge = MorphoComplexe.reconstructionGeodesique(eroded, maskAll);
@@ -2405,99 +2405,100 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         }
     }
 
-    private void jMenuItemEx7ActionPerformed(java.awt.event.ActionEvent evt) {
-        try {
-            // 1) Vérifier que Tartines.jpg est chargé
-            if (imageRGB == null
-                    || ! lastRGBFileName.equalsIgnoreCase("tartines.jpg")) {
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Chargez d'abord Tartines.jpg.",
-                        "Image manquante",
-                        JOptionPane.WARNING_MESSAGE
-                );
-                return;
-            }
-
-            // 2) Récupérer les dimensions et les canaux R,G,B
-            int w = imageRGB.getLargeur(), h = imageRGB.getHauteur();
-            int[][] r = new int[w][h], g = new int[w][h], b = new int[w][h];
-            imageRGB.getMatricesRGB(r, g, b);
-
-            // === Étape A : seuillage du canal rouge ===
-            int[][] maskR = Seuillage.seuillageAutomatique(r);
-            new CImageNG(maskR)
-                    .enregistreFormatPNG(new File("A_threshold.png"));
-
-            // === Nouvelle Étape A1 : ouverture faible pour supprimer les petits bruits ===
-            maskR = MorphoElementaire.ouverture(maskR, 51);
-            new CImageNG(maskR)
-                    .enregistreFormatPNG(new File("A1_denoised.png"));
-
-            // === Étape B : fermeture large (SE=51) pour combler ===
-            int[][] maskClose = MorphoElementaire.fermeture(maskR, 2);
-            new CImageNG(maskClose)
-                    .enregistreFormatPNG(new File("B_closed.png"));
-
-            // === Étape C : ouverture pour lisser les bords (SE=15) ===
-            int seOpen = 15;
-            int[][] maskSmooth = MorphoElementaire.ouverture(maskClose, seOpen);
-            new CImageNG(maskSmooth).enregistreFormatPNG(new File("C_smoothed.png"));
-
-            // Étape D bis : contour par gradient morphologique
-            int seContour = 3;  // carré 3×3
-            int[][] maskEroded = MorphoElementaire.erosion(maskSmooth, seContour);
-
-            int[][] border = new int[w][h];
-            for (int x = 0; x < w; x++) {
-                for (int y = 0; y < h; y++) {
-                    border[x][y] = (maskSmooth[x][y] > maskEroded[x][y]) ? 255 : 0;
+        private void jMenuItemEx7ActionPerformed(java.awt.event.ActionEvent evt) {
+            try {
+                // 1) Vérifier que Tartines.jpg est chargé
+                if (imageRGB == null
+                        || ! lastRGBFileName.equalsIgnoreCase("tartines.jpg")) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Chargez d'abord Tartines.jpg.",
+                            "Image manquante",
+                            JOptionPane.WARNING_MESSAGE
+                    );
+                    return;
                 }
-            }
 
-            CImageNG  imgContours  = new CImageNG(border);
-            imgContours.enregistreFormatPNG(new File("D_contours.png"));
+                // 2) Récupérer les dimensions et les canaux R,G,B
+                int w = imageRGB.getLargeur(), h = imageRGB.getHauteur();
+                int[][] r = new int[w][h], g = new int[w][h], b = new int[w][h];
+                imageRGB.getMatricesRGB(r, g, b);
 
-            // 1) Charger l’image d’origine et le masque de contours
-            CImageRGB imgOriginal = new CImageRGB(new File("./ImagesEtape5/tartines.jpg"));
+                // === Étape A : seuillage du canal rouge ===
+                int[][] maskR = Seuillage.seuillageAutomatique(r);
+                new CImageNG(maskR)
+                        .enregistreFormatPNG(new File("A_threshold.png"));
 
-            // 2) Récupérer dimensions et canaux de l’original
-            int width  = imgOriginal.getLargeur();
-            int height = imgOriginal.getHauteur();
-            int[][] channelR = new int[width][height];
-            int[][] channelG = new int[width][height];
-            int[][] channelB = new int[width][height];
-            imgOriginal.getMatricesRGB(channelR, channelG, channelB);
+                // === Nouvelle Étape A1 : ouverture faible pour supprimer les petits bruits ===
+                maskR = MorphoElementaire.ouverture(maskR, 51);
+                new CImageNG(maskR)
+                        .enregistreFormatPNG(new File("A1_denoised.png"));
 
-            // 3) Récupérer la matrice binaire du masque de contours
-            int[][] maskBinary = imgContours.getMatrice();  // valeurs 0 ou 255
+                // === Étape B : fermeture large (SE=51) pour combler ===
+                int[][] maskClose = MorphoElementaire.fermeture(maskR, 2);
+                new CImageNG(maskClose)
+                        .enregistreFormatPNG(new File("B_closed.png"));
 
-            // 4) Superposer le vert sur les pixels de contour
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    if (maskBinary[x][y] == 255) {
-                        channelR[x][y] = 0;
-                        channelG[x][y] = 255;
-                        channelB[x][y] = 0;
+                // === Étape C : ouverture pour lisser les bords (SE=15) ===
+                int seOpen = 15;
+                int[][] maskSmooth = MorphoElementaire.ouverture(maskClose, seOpen);
+                new CImageNG(maskSmooth).enregistreFormatPNG(new File("C_smoothed.png"));
+
+                // Étape D bis : contour par gradient morphologique
+                int seContour = 3;  // carré 3×3
+                int[][] maskEroded = MorphoElementaire.erosion(maskSmooth, seContour);
+
+                int[][] border = new int[w][h];
+                for (int x = 0; x < w; x++) {
+                    for (int y = 0; y < h; y++) {
+                        border[x][y] = (maskSmooth[x][y] > maskEroded[x][y]) ? 255 : 0;
                     }
                 }
+
+                CImageNG  imgContours  = new CImageNG(border);
+                imgContours.enregistreFormatPNG(new File("D_contours.png"));
+
+                // 1) Charger l’image d’origine et le masque de contours
+                CImageRGB imgOriginal = new CImageRGB(new File("./ImagesEtape5/tartines.jpg"));
+
+                // 2) Récupérer dimensions et canaux de l’original
+                int width  = imgOriginal.getLargeur();
+                int height = imgOriginal.getHauteur();
+                int[][] channelR = new int[width][height];
+                int[][] channelG = new int[width][height];
+                int[][] channelB = new int[width][height];
+                imgOriginal.getMatricesRGB(channelR, channelG, channelB);
+
+                // 3) Récupérer la matrice binaire du masque de contours
+                int[][] maskBinary = imgContours.getMatrice();  // valeurs 0 ou 255
+
+                // 4) Superposer le vert sur les pixels de contour
+                for (int x = 0; x < width; x++) {
+                    for (int y = 0; y < height; y++) {
+                        if (maskBinary[x][y] == 255) {
+                            channelR[x][y] = 0;
+                            channelG[x][y] = 255;
+                            channelB[x][y] = 0;
+                        }
+                    }
+                }
+
+                // 5) Enregistrer le résultat
+                CImageRGB output = new CImageRGB(channelR, channelG, channelB);
+                observer.setCImage(output);
+                output.enregistreFormatPNG(new File("tartines_overlay_vert.png"));
+
+
+            } catch (IOException | CImageRGBException | CImageNGException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Erreur : " + ex.getMessage(),
+                        "Erreur",
+                        JOptionPane.ERROR_MESSAGE
+                );
             }
-
-            // 5) Enregistrer le résultat
-            new CImageRGB(channelR, channelG, channelB)
-                    .enregistreFormatPNG(new File("tartines_overlay_vert.png"));
-
-
-        } catch (IOException | CImageRGBException | CImageNGException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Erreur : " + ex.getMessage(),
-                    "Erreur",
-                    JOptionPane.ERROR_MESSAGE
-            );
         }
-    }
 
 
 
