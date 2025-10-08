@@ -33,7 +33,11 @@ import org.jfree.data.xy.XYSeriesCollection;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Locale;
 
 public class IsilImageProcessing extends javax.swing.JFrame implements ClicListener, SelectLigneListener, SelectRectListener, SelectRectFillListener, SelectCercleListener, SelectCercleFillListener {
@@ -2336,7 +2340,9 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
     private void jMenuItemEx6ActionPerformed(java.awt.event.ActionEvent evt) {
         try {
             // 1) Vérification image vaisseaux.jpg
-            if (imageRGB == null || !lastRGBFileName.equals("vaisseaux.jpg")) {
+            if (imageRGB == null
+                    || lastRGBFileName == null
+                    || !lastRGBFileName.equalsIgnoreCase("vaisseaux.jpg")) {
                 JOptionPane.showMessageDialog(
                         this,
                         "Chargez d'abord vaisseaux.jpg (Menu Fichier → Ouvrir RGB).",
@@ -2347,7 +2353,8 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
             }
 
             // 2) Charger planete.jpg
-            CImageRGB planeteRGB = new CImageRGB(new File("./ImagesEtape5/planete.jpg"));
+            File planeteFile = resolveImageFile("ImagesEtape5/planete.jpg");
+            CImageRGB planeteRGB = new CImageRGB(planeteFile);
 
             long startTime = System.nanoTime();
 
@@ -2452,7 +2459,42 @@ public class IsilImageProcessing extends javax.swing.JFrame implements ClicListe
         }
     }
 
-        private void jMenuItemEx7ActionPerformed(java.awt.event.ActionEvent evt) {
+    private File resolveImageFile(String relativePath) throws FileNotFoundException {
+        Path path = Paths.get(relativePath);
+
+        if (path.isAbsolute()) {
+            if (Files.exists(path)) {
+                return path.toFile();
+            }
+            throw new FileNotFoundException(
+                    String.format(
+                            Locale.FRENCH,
+                            "Le fichier image %s est introuvable.",
+                            path
+                    )
+            );
+        }
+
+        Path current = Paths.get("").toAbsolutePath();
+        for (int depth = 0; depth < 6 && current != null; depth++) {
+            Path candidate = current.resolve(path);
+            if (Files.exists(candidate)) {
+                return candidate.toFile();
+            }
+            current = current.getParent();
+        }
+
+        throw new FileNotFoundException(
+                String.format(
+                        Locale.FRENCH,
+                        "Impossible de trouver \"%s\" à partir du répertoire de travail %s.",
+                        relativePath,
+                        Paths.get("").toAbsolutePath()
+                )
+        );
+    }
+
+    private void jMenuItemEx7ActionPerformed(java.awt.event.ActionEvent evt) {
             try {
                 // 1) Vérifier que Tartines.jpg est chargé
                 if (imageRGB == null
